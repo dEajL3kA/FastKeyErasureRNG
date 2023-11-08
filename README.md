@@ -2,9 +2,9 @@
 
 **Fast-key-erasure random-number generator for Java**
 
-A secure random number generator, based on AES-256 “CTR” mode, with high performance and forward secrecy.
+A cryptographically secure [RNG](https://en.wikipedia.org/wiki/Random_number_generation), based on [AES-256](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) “CTR” mode, with high performance and forward secrecy.
 
-It also has been shown to pass the [Dieharder](https://webhome.phy.duke.edu/~rgb/General/dieharder.php) random number generator testing suite.
+FastKeyErasureRNG has been shown to pass the [Dieharder](https://webhome.phy.duke.edu/~rgb/General/dieharder.php) random number generator testing suite.
 
 ## Algorithm
 
@@ -15,7 +15,7 @@ Please see here for details:
 
 ## Usage
 
-The **`FastKeyErasureRNG`** class implements the standard `Random` interface.
+The **`FastKeyErasureRNG`** class implements the standard [`Random`](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Random.html) interface.
 
 Example of usage:
 
@@ -37,6 +37,14 @@ public class Example {
 The `FastKeyErasureRNG` class is **not** thread-safe by itself.
 
 It is recommended that each thread uses its own separate instance! Use the *static* method `FastKeyErasureRNG.current()` to obtain an instance for the current thread.
+
+## Website
+
+Git mirrors for this project:
+
+* <https://github.com/dEajL3kA/FastKeyErasureRNG>
+* <https://gitlab.com/deajl3ka1/fast-key-erasure-rng-java.git>
+* <https://repo.or.cz/fast-key-erasure-rng-java.git>
 
 ## Contact information
 

@@ -30,17 +30,26 @@ import java.util.UUID;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 
+/**
+ * Fast-key-erasure random-number generator for Java
+ * <p>
+ * A secure random number generator, based on AES-256 “CTR” mode, with high performance and forward secrecy; it is based on “Fast-key-erasure random-number generators” by D. J. Bernstein.
+ * 
+ * @author dEajL3kA {@literal <Cumpoing79@web.de>
+ */
 @SuppressWarnings("serial")
 public class FastKeyErasureRNG extends Random {
 
     private static final int KEY_SIZE = 32, OUT_SIZE = 64, RESEED_INTERVAL = 257;
 
+    /**
+     * 128-bit (16 bytes) words to be used as “plaintext” counter values, generated reproducibly to maximize the pairwise hamming-distance, cf. {@link GenerateCounter}
+     */
     private static final byte[] PLAINTEXT_K = new byte[] {
         (byte)0x57, (byte)0xC3, (byte)0xEB, (byte)0xFC, (byte)0x21, (byte)0xE4, (byte)0x7F, (byte)0xE0, (byte)0xCD, (byte)0x1E, (byte)0x21, (byte)0x59, (byte)0x5C, (byte)0x92, (byte)0x3C, (byte)0x19,
         (byte)0xA0, (byte)0xBD, (byte)0xC8, (byte)0xB0, (byte)0x94, (byte)0x9A, (byte)0xB0, (byte)0x9E, (byte)0x7C, (byte)0xE0, (byte)0xA6, (byte)0xB7, (byte)0x4F, (byte)0x4C, (byte)0x61, (byte)0x9D
-    };
-
-    private static final byte[] PLAINTEXT_V = new byte[] {
+    },
+    PLAINTEXT_V = new byte[] {
         (byte)0x92, (byte)0x12, (byte)0xDC, (byte)0xD8, (byte)0xDB, (byte)0x73, (byte)0x47, (byte)0x49, (byte)0x82, (byte)0xC3, (byte)0xF3, (byte)0xC0, (byte)0x6A, (byte)0x6D, (byte)0x90, (byte)0xFC,
         (byte)0x2C, (byte)0x37, (byte)0x97, (byte)0x61, (byte)0xA0, (byte)0xD2, (byte)0x05, (byte)0xD7, (byte)0xAE, (byte)0x2F, (byte)0x95, (byte)0x68, (byte)0xA5, (byte)0xA0, (byte)0xA6, (byte)0xC5,
         (byte)0x63, (byte)0xF4, (byte)0x79, (byte)0x45, (byte)0x13, (byte)0x8C, (byte)0x89, (byte)0x62, (byte)0xB8, (byte)0xF7, (byte)0xBE, (byte)0xA6, (byte)0x78, (byte)0xF9, (byte)0xDF, (byte)0x6A,

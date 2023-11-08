@@ -31,10 +31,12 @@ public class Main {
                 random.nextBytes(buffer);
                 try {
                     output.write(buffer);
-                } catch (final IOException e) { }
+                } catch (final IOException e) {
+                    break;
+                }
             }
-        } catch (final IOException e) {
-            e.printStackTrace();
+        } catch (final Exception e) {
+            System.err.println("Something went wrong: " + e);
         }
     }
 }
