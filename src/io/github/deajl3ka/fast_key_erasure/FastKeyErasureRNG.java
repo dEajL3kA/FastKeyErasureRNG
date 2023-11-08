@@ -33,8 +33,6 @@ import javax.crypto.SecretKey;
 @SuppressWarnings("serial")
 public class FastKeyErasureRNG extends Random {
 
-    private static final short VER_MAJOR = 1, VER_MINOR = 0;
-
     private static final int KEY_SIZE = 32, OUT_SIZE = 64, RESEED_INTERVAL = 257;
 
     private static final byte[] PLAINTEXT_K = new byte[] {
@@ -255,7 +253,20 @@ public class FastKeyErasureRNG extends Random {
         return INSTANCES.get();
     }
 
+    // ======================================================================
+    // Version information
+    // ======================================================================
+
     public static short[] getVersion() {
-        return new short[] { VER_MAJOR, VER_MINOR };
+        try {
+            final String version = FastKeyErasureRNG.class.getPackage().getImplementationVersion();
+            if ((version != null) && (!version.isEmpty())) {
+                final String[] versionParts = version.split("\\.");
+                if (versionParts.length > 1) {
+                    return new short[] { Short.parseShort(versionParts[0].trim(), 10), Short.parseShort(versionParts[1].trim(), 10) };
+                }
+            }
+        } catch (Exception e) { }
+        return new short[] { (short)0, (short)0 };
     }
 }

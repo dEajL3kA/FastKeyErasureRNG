@@ -1,0 +1,89 @@
+<project name="fast-key-erasure" default="main" basedir=".">
+	<property name="package.version" value="1.0"/>
+
+	<property name="src.dir" location="src"/>
+	<property name="bin.dir" location="bin"/>
+	<property name="out.dir" location="dist"/>
+
+	<property name="bin.dir.jdk8" location="${bin.dir}/@jdk8"/>
+	<property name="bin.dir.jdk17" location="${bin.dir}/@jdk17"/>
+
+	<tstamp>
+		<format property="build.date" pattern="yyyy-MM-dd" locale="en,UK" timezone="UTC"/>
+		<format property="build.timestamp" pattern="yyyyMMdd-HHmmss" locale="en,UK" timezone="UTC"/>
+	</tstamp>
+
+	<property name="out.name" value="${ant.project.name}.${build.date}"/>
+
+	<property name="out.file.jdk8" location="${out.dir}/${out.name}.jdk-8.jar"/>
+	<property name="out.file.jdk17" location="${out.dir}/${out.name}.jdk-17.jar"/>
+
+	<!-- ~~~~ MAIN ~~~~ -->
+
+	<target name="main" depends="clean,jar">
+		<echo message="Completed."/>
+	</target>
+
+	<!-- ~~~~ COMPILE ~~~~ -->
+
+	<target name="compile" description="compile java sources" depends="compile.jdk8,compile.jdk17">
+		<echo message="Completed."/>
+	</target>
+
+	<target name="compile.jdk8" description="compile java sources (JDK 8)">
+		<mkdir dir="${bin.dir.jdk8}"/>
+		<javac srcdir="${src.dir}" destdir="${bin.dir.jdk8}" debug="off" source="1.8" target="1.8" optimize="true" includeantruntime="false" encoding="utf8"/>
+	</target>
+
+	<target name="compile.jdk17" description="compile java sources (JDK 17)">
+		<mkdir dir="${bin.dir.jdk17}"/>
+		<javac srcdir="${src.dir}" destdir="${bin.dir.jdk17}" debug="off" release="17" optimize="true" includeantruntime="false" encoding="utf8"/>
+	</target>
+
+	<!-- ~~~~ JAR ~~~~ -->
+
+	<target name="jar" description="create JAR package" depends="jar.jdk8,jar.jdk17">
+		<echo message="Completed."/>
+	</target>
+
+	<target name="jar.jdk8" description="create JAR package (JDK 8)" depends="compile.jdk8">
+		<mkdir dir="${out.dir}"/>
+		<jar destfile="${out.file.jdk8}" basedir="${bin.dir.jdk8}" includes="**/*.class" excludes="**/Main.class">
+			<fileset file="${basedir}/README.md"/>
+			<fileset file="${basedir}/LICENSE.txt"/>
+			<manifest>
+				<section name="io/github/deajl3ka/fast_key_erasure/">
+					<attribute name="Implementation-Title" value="Fast-key-erasure Random-number Generator"/>
+					<attribute name="Implementation-Version" value="${package.version}"/>
+					<attribute name="Implementation-Build-Date" value="${build.timestamp}"/>
+				</section>
+			</manifest>
+		</jar>
+		<attrib file="${out.file.jdk8}" readonly="true"/>
+	</target>
+
+	<target name="jar.jdk17" description="create JAR package (JDK 17)" depends="compile.jdk17">
+		<mkdir dir="${out.dir}"/>
+		<jar destfile="${out.file.jdk17}" basedir="${bin.dir.jdk17}" includes="**/*.class" excludes="**/Main.class">
+			<fileset file="${basedir}/README.md"/>
+			<fileset file="${basedir}/LICENSE.txt"/>
+			<manifest>
+				<section name="io/github/deajl3ka/fast_key_erasure/">
+					<attribute name="Implementation-Title" value="Fast-key-erasure Random-number Generator"/>
+					<attribute name="Implementation-Version" value="${package.version}"/>
+					<attribute name="Implementation-Build-Date" value="${build.timestamp}"/>
+				</section>
+			</manifest>
+		</jar>
+		<attrib file="${out.file.jdk17}" readonly="true"/>
+	</target>
+
+	<!-- ~~~~ CLEAN ~~~~ -->
+	
+	<target name="clean">
+		<delete includeemptydirs="true" verbose="true">
+			<fileset dir="${bin.dir}" includes="**/*" erroronmissingdir="false"/>
+			<fileset dir="${out.dir}" includes="**/*" erroronmissingdir="false"/>
+		</delete>
+	</target>
+</project>
