@@ -2,11 +2,14 @@
 	<property name="package.version" value="1.0"/>
 
 	<property name="src.dir" location="src"/>
+	<property name="src.dir.test" location="test"/>
+	<property name="lib.dir" location="lib"/>
+	<property name="lib.dir.test" location="${lib.dir}/test"/>
 	<property name="bin.dir" location="bin"/>
-	<property name="out.dir" location="dist"/>
-
 	<property name="bin.dir.jdk8" location="${bin.dir}/@jdk8"/>
 	<property name="bin.dir.jdk17" location="${bin.dir}/@jdk17"/>
+	<property name="bin.dir.test" location="${bin.dir}/@test"/>
+	<property name="out.dir" location="dist"/>
 
 	<tstamp>
 		<format property="build.date" pattern="yyyy-MM-dd" locale="en,UK" timezone="UTC"/>
@@ -17,6 +20,7 @@
 
 	<property name="out.file.jdk8" location="${out.dir}/${out.name}.jdk-8.jar"/>
 	<property name="out.file.jdk17" location="${out.dir}/${out.name}.jdk-17.jar"/>
+	<property name="out.file.test" location="${out.dir}/${out.name}.tests.jar"/>
 
 	<!-- ~~~~ MAIN ~~~~ -->
 
@@ -26,7 +30,7 @@
 
 	<!-- ~~~~ COMPILE ~~~~ -->
 
-	<target name="compile" description="compile java sources" depends="compile.jdk8,compile.jdk17">
+	<target name="compile" description="compile java sources" depends="compile.jdk8,compile.jdk17,compile.test">
 		<echo message="Completed."/>
 	</target>
 
@@ -40,9 +44,21 @@
 		<javac srcdir="${src.dir}" destdir="${bin.dir.jdk17}" debug="off" release="17" optimize="true" includeantruntime="false" encoding="utf8"/>
 	</target>
 
+	<target name="compile.test" description="compile java sources (test)" depends="compile.jdk17">
+		<mkdir dir="${bin.dir.test}"/>
+		<javac srcdir="${src.dir.test}" destdir="${bin.dir.test}" debug="true" release="17" optimize="true" includeantruntime="false" encoding="utf8">
+			<classpath>
+				<pathelement location="${bin.dir.jdk17}"/>
+				<pathelement location="${lib.dir.test}/apiguardian-api-1.1.2.jar"/>
+				<pathelement location="${lib.dir.test}/ascii85-1.2.jar"/>
+				<pathelement location="${lib.dir.test}/junit-jupiter-api-5.10.1.jar"/>
+			</classpath>
+		</javac>
+	</target>
+
 	<!-- ~~~~ JAR ~~~~ -->
 
-	<target name="jar" description="create JAR package" depends="jar.jdk8,jar.jdk17">
+	<target name="jar" description="create JAR package" depends="jar.jdk8,jar.jdk17,jar.test">
 		<echo message="Completed."/>
 	</target>
 
@@ -76,6 +92,15 @@
 			</manifest>
 		</jar>
 		<attrib file="${out.file.jdk17}" readonly="true"/>
+	</target>
+
+	<target name="jar.test" description="create JAR package (test)" depends="compile.test">
+		<mkdir dir="${out.dir}"/>
+		<jar destfile="${out.file.test}" basedir="${bin.dir.test}" includes="**/*.class" excludes="**/Main.class">
+			<fileset file="${basedir}/README.md"/>
+			<fileset file="${basedir}/LICENSE.txt"/>
+		</jar>
+		<attrib file="${out.file.test}" readonly="true"/>
 	</target>
 
 	<!-- ~~~~ CLEAN ~~~~ -->

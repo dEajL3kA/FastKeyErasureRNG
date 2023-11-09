@@ -15,6 +15,7 @@ if not exist "%ANT_HOME%\bin\ant.bat" (
 
 set "JAVA_HOME=%JDK17_HOME%"
 set "PATH=%JAVA_HOME%\bin;%ANT_HOME%\bin;%PATH%"
+set CLASSPATH=
 
 call "%ANT_HOME%\bin\ant.bat" %*
 
