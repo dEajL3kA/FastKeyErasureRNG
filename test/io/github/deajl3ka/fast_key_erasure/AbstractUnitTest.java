@@ -19,6 +19,8 @@ package io.github.deajl3ka.fast_key_erasure;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.IntStream;
@@ -195,5 +197,32 @@ public abstract class AbstractUnitTest {
             fact = Math.multiplyExact(fact, factor);
         }
         return fact;
+    }
+
+    // ======================================================================
+    // Reflection
+    // ======================================================================
+
+    protected static <T> T getField(final Class<FastKeyErasureRNG> clazz, final Class<T> resultType, final String name) {
+        try {
+            final Field field = clazz.getDeclaredField(name);
+            boolean retryFlag = false;
+            if (!Modifier.isStatic(field.getModifiers())) {
+                throw new IllegalArgumentException("Not a static field!");
+            }
+            for (;;) {
+                try {
+                    return resultType.cast(field.get(null));
+                } catch (IllegalAccessException e) {
+                    if (retryFlag) {
+                        return null;
+                    }
+                    field.setAccessible(true);
+                    retryFlag = true;
+                }
+            }
+        } catch (ClassCastException | ReflectiveOperationException | SecurityException e) {
+            return null;
+        }
     }
 }

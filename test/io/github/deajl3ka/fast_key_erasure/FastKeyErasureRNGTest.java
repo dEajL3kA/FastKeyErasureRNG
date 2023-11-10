@@ -19,6 +19,7 @@ package io.github.deajl3ka.fast_key_erasure;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -62,6 +63,8 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
 
     private final SortedMap<String, MutableLong> callStats =  Collections.synchronizedSortedMap(new TreeMap<String, MutableLong>(String.CASE_INSENSITIVE_ORDER));
 
+    private String K = "undefined", V = "undefined";
+
     // ======================================================================
     // Constructor
     // ======================================================================
@@ -84,7 +87,7 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
     }
 
     // ======================================================================
-    // Utility methods
+    // Initialization
     // ======================================================================
 
     @BeforeEach
@@ -92,18 +95,29 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
         final AtomicBoolean assertionsEnabled = new AtomicBoolean(false);
         assert assertionsEnabled.compareAndSet(false, true);
         assertTrue(assertionsEnabled.get(), "Assertions must be enabled!");
+
+        final byte[] plaintext_k = getField(FastKeyErasureRNG.class, byte[].class, "PLAINTEXT_K");
+        assertNotNull(plaintext_k);
+        assertEquals(40, (K = Ascii85.encode(plaintext_k)).length());
+
+        final byte[] plaintext_v = getField(FastKeyErasureRNG.class, byte[].class, "PLAINTEXT_V");
+        assertNotNull(plaintext_v);
+        assertEquals(80, (V = Ascii85.encode(plaintext_v)).length());
+    }
+
+    @AfterEach
+    private void doFinalize() {
+        for (final Entry<String, MutableLong> entry : callStats.entrySet()) {
+            System.out.printf("Method \"%s\" was called %d times.%n", entry.getKey(), entry.getValue().asLong());
+        }
+
+        assertEquals(K, Ascii85.encode(getField(FastKeyErasureRNG.class, byte[].class, "PLAINTEXT_K")));
+        assertEquals(V, Ascii85.encode(getField(FastKeyErasureRNG.class, byte[].class, "PLAINTEXT_V")));
     }
 
     private long getStats(final String methodName) {
         final MutableLong counter = callStats.get(methodName);
         return (counter != null) ? counter.asLong() : 0L;
-    }
-
-    @AfterEach
-    private void printStats() {
-        for (final Entry<String, MutableLong> entry : callStats.entrySet()) {
-            System.out.printf("Method \"%s\" was called %d times.%n", entry.getKey(), entry.getValue().asLong());
-        }
     }
 
     // ======================================================================
