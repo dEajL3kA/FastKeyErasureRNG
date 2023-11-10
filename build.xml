@@ -94,9 +94,11 @@
 		<attrib file="${out.file.jdk17}" readonly="true"/>
 	</target>
 
-	<target name="jar.test" description="create JAR package (test)" depends="compile.test">
+	<target name="jar.test" description="create JAR package (test)" depends="jar.jdk17,compile.test">
 		<mkdir dir="${out.dir}"/>
 		<jar destfile="${out.file.test}" basedir="${bin.dir.test}" includes="**/*.class" excludes="**/Main.class">
+			<zipfileset includes="**/*.class" excludes="**/module-info.*" src="${out.file.jdk17}"/>
+			<zipfileset includes="**/*.class" excludes="**/module-info.*" src="${lib.dir.test}/ascii85-1.2.jar"/>
 			<fileset file="${basedir}/README.md"/>
 			<fileset file="${basedir}/LICENSE.txt"/>
 		</jar>

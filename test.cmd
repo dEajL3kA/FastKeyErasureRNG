@@ -9,34 +9,26 @@ if not exist "%JDK17_HOME%\bin\java.exe" (
 
 if not exist "%CD%\junit-platform-console-standalone.jar" (
 	echo File "junit-platform-console-standalone.jar" not found in current directory!
+	echo Please download from https://mvnrepository.com/artifact/org.junit.platform/junit-platform-console-standalone
 	pause
 	exit /b 1
 )
 
-for %%i in (%CD%\dist\fast-key-erasure.*.jdk-17.jar) do (
-	set "JAR_FILE_CORE=%%i"
-	goto:found_jarfile_core
-)
-echo File "fast-key-erasure.jdk-17.jar" not found. Please build first!
-pause
-exit /b 1
-
-:found_jarfile_core
-
 for %%i in (%CD%\dist\fast-key-erasure.*.tests.jar) do (
-	set "JAR_FILE_TEST=%%i"
-	goto:found_jarfile_test
+	set "JAR_FILE_PATH=%%~i"
+	goto:found_jarfile
 )
-echo File "fast-key-erasure.tests.jar" not found. Please build first!
+
+echo File "dist\fast-key-erasure.tests.jar" not found. Please build first!
 pause
 exit /b 1
 
-:found_jarfile_test
+:found_jarfile
 
 set "JAVA_HOME=%JDK17_HOME%"
 set "PATH=%JAVA_HOME%\bin;%PATH%"
 set CLASSPATH=
 
-"%JAVA_HOME%\bin\java.exe" -Xmx10g -Xms10g -ea -jar "%CD%\junit-platform-console-standalone.jar" --classpath "%JAR_FILE_TEST%;%JAR_FILE_CORE%;%CD%\lib\test\ascii85-1.2.jar" --scan-classpath
+"%JAVA_HOME%\bin\java.exe" -Xmx10g -Xms10g -ea -jar "%CD%\junit-platform-console-standalone.jar" --classpath "%JAR_FILE_PATH%" --scan-classpath
 
 pause
