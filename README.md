@@ -58,3 +58,19 @@ OpenPGP key:
 
 Copyright (c) 2023 "dEajL3kA" &lt;Cumpoing79@web.de&gt;  
 This work has been released under the MIT license. See [LICENSE.txt](LICENSE.txt) for details!
+
+### Acknowledgement
+
+FastKeyErasureRNG *test-only* dependencies:
+
+* **[@API Guardian](https://github.com/apiguardian-team/apiguardian) – provides the `@API` annotation**  
+  Apache License 2.0  
+  Copyright (c) 2002-2017 The @API Guardian Team
+
+* **[Ascii85](https://github.com/fzakaria/ascii85) – library for working with Ascii85**  
+  Apache License 2.0  
+  Copyright (c) 2016-2020 Farid Zakaria
+
+* **[JUnit 5](https://github.com/junit-team/junit5/) – programmer-friendly testing framework**  
+  Eclipse Public License 2.0  
+  Copyright (c) 2015-2023 The JUnit Team

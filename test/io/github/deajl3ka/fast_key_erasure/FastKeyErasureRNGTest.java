@@ -340,21 +340,41 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
         // Create instance
         final FastKeyErasureRNG instance = createInstance(logger);
 
-        // Initialize set
-        final HashSet<Integer> hashSet = new HashSet<Integer>();
+        // Initialize the maximum 
+        final int[] finalSetSize = new int[997];
 
         // Accumulate total number of bytes
         long totalBytes = 0L;
 
-        for (int i = 0; i < 9967; ++i) {
-            // Generate value
-            final int intValue = instance.nextInt();
-            totalBytes += Integer.BYTES;
-            System.out.println(toHexString(intValue, 8));
+        for (int i = 0; i < finalSetSize.length; ++i) {
+            // Initialize set
+            final HashSet<Integer> hashSet = new HashSet<Integer>();
 
-            // Add to the set
-            assertTrue(hashSet.add(intValue));
+            for (;;) {
+                // Generate value
+                final int intValue = instance.nextInt();
+                totalBytes += Integer.BYTES;
+                System.out.println(toHexString(intValue, 8));
+
+                // Add to the set
+                if (!hashSet.add(intValue)) {
+                    break;
+                }
+            }
+
+            // Store size
+            finalSetSize[i] = hashSet.size();
         }
+
+        // Sort results
+        Arrays.sort(finalSetSize);
+
+        // Verify median size
+        final int quarter = finalSetSize.length / 4;
+        final double average = Arrays.stream(finalSetSize).sorted().skip(quarter).limit(finalSetSize.length - (2 * quarter)).average().getAsDouble();
+        System.out.printf("Average set size: %.2f%n", average);
+        assertTrue(average >= 65536.0);
+        assertTrue(average < 131072.0);
 
         // Print stats
         final long expectedBlocks = (totalBytes + 63) / 64;
