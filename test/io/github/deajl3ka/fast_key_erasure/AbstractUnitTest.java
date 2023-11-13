@@ -20,10 +20,11 @@ package io.github.deajl3ka.fast_key_erasure;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.IntStream;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
@@ -36,11 +37,23 @@ public abstract class AbstractUnitTest {
 
     @BeforeEach
     public void printHeader(final TestInfo testInfo) {
-        final String displayName = testInfo.getDisplayName();
-        final String separator = repeat('~', displayName.length() + 10);
+        final String testName = getUniqueTestName(testInfo);
+        final String separator = repeat('~', testName.length() + 10);
         System.out.println(separator);
-        System.out.println("~~~~ " + displayName + " ~~~~");
+        System.out.println("~~~~ " + testName + " ~~~~");
         System.out.println(separator);
+    }
+
+    private static String getUniqueTestName(final TestInfo testInfo) {
+        final String testName = testInfo.getDisplayName();
+        final Optional<Method> testMethod = testInfo.getTestMethod();
+        if (testMethod.isPresent()) {
+            final String methodName = String.format("%s()", testMethod.get().getName());
+            if (!testName.equalsIgnoreCase(methodName)) {
+                return String.format("%s: %s", methodName, testName);
+            }
+        }
+        return testName;
     }
 
     // ======================================================================
@@ -166,10 +179,6 @@ public abstract class AbstractUnitTest {
         public static int getSecond(final int[] val) {
             return val[1];
         }
-    }
-
-    protected static IntStream nCopies(final int count, final int value) {
-        return IntStream.generate(() -> value).limit(count);
     }
 
     // ======================================================================

@@ -1,4 +1,4 @@
-/*.jar
 /bin.test/
 /bin/
 /dist/
+/libexec/*.jar

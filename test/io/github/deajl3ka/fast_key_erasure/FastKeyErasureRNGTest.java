@@ -53,6 +53,8 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import com.github.fzakaria.ascii85.Ascii85;
 
@@ -159,35 +161,31 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
     // Test methods
     // ======================================================================
 
-    @Test
+    @ParameterizedTest
     @Order(1)
-    public void testNextBytes() {
+    @ValueSource(ints = {64, 73, 97})
+    public void testNextBytes(final int length) {
         // Create instance
         final FastKeyErasureRNG instance = createInstance(logger);
-
-        // Initialize length array
-        final List<Integer> LENGTHS = Collections.unmodifiableList(Arrays.asList(64, 73, 97));
 
         // Accumulate total number of bytes
         long totalBytes = 0L;
 
-        for (final int length : LENGTHS) {
-            // Initialize set
-            final HashSet<String> hashSet = new HashSet<String>();
+        // Initialize set
+        final HashSet<String> hashSet = new HashSet<String>();
 
-            for (int i = 0; i < 4999999; ++i) {
-                // Generate array
-                final byte[] array = instance.nextBytes(length);
-                totalBytes += array.length;
-                assertEquals(length, array.length);
+        for (int i = 0; i < 4999999; ++i) {
+            // Generate array
+            final byte[] array = instance.nextBytes(length);
+            totalBytes += array.length;
+            assertEquals(length, array.length);
 
-                // Convert to ASCII
-                final String ascii = Ascii85.encode(array);
-                System.out.println(ascii);
+            // Convert to ASCII
+            final String ascii = Ascii85.encode(array);
+            System.out.println(ascii);
 
-                // Add to the set
-                assertTrue(hashSet.add(ascii));
-            }
+            // Add to the set
+            assertTrue(hashSet.add(ascii));
         }
 
         // Print stats
@@ -200,37 +198,33 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
         assertEquals((expectedBlocks + 256) / 257, getStats("setSeed"));
     }
 
-    @Test
+    @ParameterizedTest
     @Order(2)
-    public void testNextBytesInplace() {
+    @ValueSource(ints = {64, 73, 97})
+    public void testNextBytesInplace(final int length) {
         // Create instance
         final FastKeyErasureRNG instance = createInstance(logger);
-
-        // Initialize length array
-        final List<Integer> LENGTHS = Collections.unmodifiableList(Arrays.asList(64, 73, 97));
 
         // Accumulate total number of bytes
         long totalBytes = 0L;
 
-        for (final int length : LENGTHS) {
-            // Initialize set
-            final HashSet<String> hashSet = new HashSet<String>();
+        // Initialize set
+        final HashSet<String> hashSet = new HashSet<String>();
 
-            // Allocate array
-            final byte[] array = new byte[length];
+        // Allocate array
+        final byte[] array = new byte[length];
 
-            for (int i = 0; i < 4999999; ++i) {
-                // Generate array
-                instance.nextBytes(array);
-                totalBytes += array.length;
+        for (int i = 0; i < 4999999; ++i) {
+            // Generate array
+            instance.nextBytes(array);
+            totalBytes += array.length;
 
-                // Convert to ASCII
-                final String ascii = Ascii85.encode(array);
-                System.out.println(ascii);
+            // Convert to ASCII
+            final String ascii = Ascii85.encode(array);
+            System.out.println(ascii);
 
-                // Add to the set
-                assertTrue(hashSet.add(ascii));
-            }
+            // Add to the set
+            assertTrue(hashSet.add(ascii));
         }
 
         // Print stats
@@ -387,8 +381,8 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
         final int quarter = finalSetSize.length / 4;
         final double average = Arrays.stream(finalSetSize).sorted().skip(quarter).limit(finalSetSize.length - (2 * quarter)).average().getAsDouble();
         System.out.printf("Average set size: %.2f%n", average);
-        assertTrue(average >= 65536.0);
-        assertTrue(average < 131072.0);
+        assertTrue(average > 65536.0);
+        assertTrue(average < 98304.0);
 
         // Print stats
         final long expectedBlocks = (totalBytes + 63) / 64;
@@ -629,68 +623,71 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
         assertEquals((expectedBlocks + 256) / 257, getStats("setSeed"));
     }
 
-    @Test
+    @ParameterizedTest
     @Order(12)
-    public void testTuplesDistribution() {
+    @ValueSource(ints = {3, 4, 5})
+    public void testTuplesDistribution(final int length) {
         // Create instance
         final FastKeyErasureRNG instance = createInstance(logger);
 
-        // Initialize iterations array
-        final List<Integer> ITERATIONS = Collections.unmodifiableList(Arrays.asList(4999999, 7499969, 99999989));
+        // Get number of iterations
+        final int iterations;
+        switch (length) {
+            case 3: iterations =  4999999; break;
+            case 4: iterations =  7499969; break;
+            case 5: iterations = 99999989; break;
+            default:
+                throw new IllegalArgumentException("Bad length value!");
+        }
 
         // Accumulate total number of bytes
         long totalBytes = 0L;
 
-        for (int length = 3; length < 6; ++length) {
-            // Initialize arrays
-            final List<int[]> list = Stream.generate(Tuple::create).limit(length).collect(Collectors.toCollection(ArrayList<int[]>::new));
-            final long[] tupleStats = new long[radixHash(nCopies(length, length - 1).toArray(), length) + 1];
+        // Initialize arrays
+        final List<int[]> list = Stream.generate(Tuple::create).limit(length).collect(Collectors.toCollection(ArrayList<int[]>::new));
+        final long[] tupleStats = new long[2931];
 
-            // Get number of iterations
-            final int iterations = ITERATIONS.get(length - 3);
-
-            for (int i = 0; i < iterations; ++i) {
-                // Update list
-                for (int j = 0; j < length; ++j) {
-                    final int[] currentElement = list.get(j);
-                    currentElement[0] = j;
-                    currentElement[1] = instance.nextInt();
-                    totalBytes += Integer.BYTES;
-                }
-
-                // Sort by value
-                list.sort((a, b) -> Integer.compare(a[1], b[1]));
-
-                // Retrieve indices and values
-                final int[] indices = list.stream().mapToInt(Tuple::getFirst).toArray();
-                final int[] values = list.stream().mapToInt(Tuple::getSecond).toArray();
-
-                // Update stats
-                final int key = radixHash(indices, length);
-                ++tupleStats[key];
-
-                // Print details 
-                System.out.println(toHexString(key, 3) + " <-- " + Arrays.toString(indices) + " <-- " + Arrays.toString(values));
+        for (int i = 0; i < iterations; ++i) {
+            // Update list
+            for (int j = 0; j < length; ++j) {
+                final int[] currentElement = list.get(j);
+                currentElement[0] = j;
+                currentElement[1] = instance.nextInt();
+                totalBytes += Integer.BYTES;
             }
 
-            // Print result
-            for (int key = 0; key < tupleStats.length; ++key) {
-                if (tupleStats[key] != 0L) {
-                    System.out.printf("%03X -> %8d%n", key, tupleStats[key]);
-                }
-            }
+            // Sort by value
+            list.sort((a, b) -> Integer.compare(a[1], b[1]));
 
-            // Assert completeness
-            final long[] nonZeroEntries = Arrays.stream(tupleStats).filter(val -> (val != 0L)).toArray();
-            assertEquals(factorial(length), nonZeroEntries.length);
+            // Retrieve indices and values
+            final int[] indices = list.stream().mapToInt(Tuple::getFirst).toArray();
+            final int[] values = list.stream().mapToInt(Tuple::getSecond).toArray();
 
-            // Compute ration of most/less frequent values
-            final long minFrequency = Arrays.stream(nonZeroEntries).min().getAsLong();
-            final long maxFrequency = Arrays.stream(nonZeroEntries).max().getAsLong();
-            final double ratio = minFrequency / (double)maxFrequency;
-            System.out.printf("%010d / %010d [%.5f]%n", minFrequency, maxFrequency, ratio);
-            assertTrue(ratio >= 0.99);
+            // Update stats
+            final int key = radixHash(indices, length);
+            ++tupleStats[key];
+
+            // Print details 
+            System.out.println(toHexString(key, 3) + " <-- " + Arrays.toString(indices) + " <-- " + Arrays.toString(values));
         }
+
+        // Print result
+        for (int key = 0; key < tupleStats.length; ++key) {
+            if (tupleStats[key] != 0L) {
+                System.out.printf("%03X -> %8d%n", key, tupleStats[key]);
+            }
+        }
+
+        // Assert completeness
+        final long[] nonZeroEntries = Arrays.stream(tupleStats).filter(val -> (val != 0L)).toArray();
+        assertEquals(factorial(length), nonZeroEntries.length);
+
+        // Compute ration of most/less frequent values
+        final long minFrequency = Arrays.stream(nonZeroEntries).min().getAsLong();
+        final long maxFrequency = Arrays.stream(nonZeroEntries).max().getAsLong();
+        final double ratio = minFrequency / (double)maxFrequency;
+        System.out.printf("%010d / %010d [%.5f]%n", minFrequency, maxFrequency, ratio);
+        assertTrue(ratio >= 0.99);
 
         // Print stats
         final long expectedBlocks = (totalBytes + 63) / 64;

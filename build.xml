@@ -52,6 +52,7 @@
 				<pathelement location="${lib.dir.test}/apiguardian-api-1.1.2.jar"/>
 				<pathelement location="${lib.dir.test}/ascii85-1.2.jar"/>
 				<pathelement location="${lib.dir.test}/junit-jupiter-api-5.10.1.jar"/>
+				<pathelement location="${lib.dir.test}/junit-jupiter-params-5.10.1.jar"/>
 			</classpath>
 		</javac>
 	</target>
