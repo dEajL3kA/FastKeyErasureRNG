@@ -24,6 +24,8 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) {
+        final short[] libVersion = FastKeyErasureRNG.getVersion();
+        System.err.printf("%s [v%d.%d]%n", FastKeyErasureRNG.class.getSimpleName(), libVersion[0], libVersion[1]);
         final FastKeyErasureRNG random = FastKeyErasureRNG.current();
         final byte[] buffer = new byte[4096];
         try (final FileOutputStream output = new FileOutputStream(FileDescriptor.out)) {

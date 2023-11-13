@@ -104,7 +104,7 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
 
         final byte[] plaintext_v = getField(FastKeyErasureRNG.class, byte[].class, "PLAINTEXT_V");
         assertNotNull(plaintext_v);
-        assertEquals(80, (V = Ascii85.encode(plaintext_v)).length());
+        assertEquals(120, (V = Ascii85.encode(plaintext_v)).length());
     }
 
     @AfterEach
@@ -189,7 +189,7 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
         }
 
         // Print stats
-        final long expectedBlocks = (totalBytes + 63) / 64;
+        final long expectedBlocks = (totalBytes + 95) / 96;
         System.out.printf("Total bytes generated: %d (total blocks generated: %d)%n", totalBytes, expectedBlocks);
 
         // Verify stats
@@ -228,7 +228,7 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
         }
 
         // Print stats
-        final long expectedBlocks = (totalBytes + 63) / 64;
+        final long expectedBlocks = (totalBytes + 95) / 96;
         System.out.printf("Total bytes generated: %d (total blocks generated: %d)%n", totalBytes, expectedBlocks);
 
         // Verify stats
@@ -293,7 +293,7 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
         }
 
         // Print stats
-        final long expectedBlocks = (totalBytes + 63) / 64;
+        final long expectedBlocks = (totalBytes + 95) / 96;
         System.out.printf("Total bytes generated: %d (total blocks generated: %d)%n", totalBytes, expectedBlocks);
 
         // Verify stats
@@ -333,7 +333,7 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
         assertTrue(ratio >= 0.99);
 
         // Print stats
-        final long expectedBlocks = (totalBytes + 63) / 64;
+        final long expectedBlocks = (totalBytes + 95) / 96;
         System.out.printf("Total bytes generated: %d (total blocks generated: %d)%n", totalBytes, expectedBlocks);
         
         // Verify stats
@@ -385,7 +385,7 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
         assertTrue(average < 98304.0);
 
         // Print stats
-        final long expectedBlocks = (totalBytes + 63) / 64;
+        final long expectedBlocks = (totalBytes + 95) / 96;
         System.out.printf("Total bytes generated: %d (total blocks generated: %d)%n", totalBytes, expectedBlocks);
 
         // Verify stats
@@ -417,7 +417,7 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
         }
 
         // Print stats
-        final long expectedBlocks = (totalBytes + 63) / 64;
+        final long expectedBlocks = (totalBytes + 95) / 96;
         System.out.printf("Total bytes generated: %d (total blocks generated: %d)%n", totalBytes, expectedBlocks);
 
         // Verify stats
@@ -449,7 +449,7 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
         }
 
         // Print stats
-        final long expectedBlocks = (totalBytes + 63) / 64;
+        final long expectedBlocks = (totalBytes + 95) / 96;
         System.out.printf("Total bytes generated: %d (total blocks generated: %d)%n", totalBytes, expectedBlocks);
 
         // Verify stats
@@ -481,7 +481,7 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
         }
 
         // Print stats
-        final long expectedBlocks = (totalBytes + 63) / 64;
+        final long expectedBlocks = (totalBytes + 95) / 96;
         System.out.printf("Total bytes generated: %d (total blocks generated: %d)%n", totalBytes, expectedBlocks);
 
         // Verify stats
@@ -525,7 +525,7 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
         }
 
         // Print stats
-        final long expectedBlocks = (totalBytes + 63) / 64;
+        final long expectedBlocks = (totalBytes + 95) / 96;
         System.out.printf("Total bytes generated: %d (total blocks generated: %d)%n", totalBytes, expectedBlocks);
 
         // Verify stats
@@ -571,7 +571,7 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
         }
 
         // Print stats
-        final long expectedBlocks = (totalBytes + 63) / 64;
+        final long expectedBlocks = (totalBytes + 95) / 96;
         System.out.printf("Total bytes generated: %d (total blocks generated: %d)%n", totalBytes, expectedBlocks);
 
         // Verify stats
@@ -614,7 +614,7 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
         assertTrue(ratio >= 0.95);
 
         // Print stats
-        final long expectedBlocks = (totalBytes + 63) / 64;
+        final long expectedBlocks = (totalBytes + 95) / 96;
         System.out.printf("Total bytes generated: %d (total blocks generated: %d)%n", totalBytes, expectedBlocks);
 
         // Verify stats
@@ -690,7 +690,7 @@ public class FastKeyErasureRNGTest extends AbstractUnitTest {
         assertTrue(ratio >= 0.99);
 
         // Print stats
-        final long expectedBlocks = (totalBytes + 63) / 64;
+        final long expectedBlocks = (totalBytes + 95) / 96;
         System.out.printf("Total bytes generated: %d (total blocks generated: %d)%n", totalBytes, expectedBlocks);
 
         // Verify stats

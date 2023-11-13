@@ -1,5 +1,5 @@
 <project name="fast-key-erasure" default="main" basedir=".">
-	<property name="package.version" value="1.0"/>
+	<property name="package.version" value="1.1"/>
 
 	<property name="src.dir" location="src"/>
 	<property name="src.dir.test" location="test"/>
@@ -65,10 +65,11 @@
 
 	<target name="jar.jdk8" description="create JAR package (JDK 8)" depends="compile.jdk8">
 		<mkdir dir="${out.dir}"/>
-		<jar destfile="${out.file.jdk8}" basedir="${bin.dir.jdk8}" includes="**/*.class" excludes="**/Main.class">
+		<jar destfile="${out.file.jdk8}" basedir="${bin.dir.jdk8}" includes="**/*.class">
 			<fileset file="${basedir}/README.md"/>
 			<fileset file="${basedir}/LICENSE.txt"/>
 			<manifest>
+				<attribute name="Main-Class" value="io.github.deajl3ka.fast_key_erasure.Main"/>
 				<section name="io/github/deajl3ka/fast_key_erasure/">
 					<attribute name="Implementation-Title" value="Fast-key-erasure Random-number Generator"/>
 					<attribute name="Implementation-Version" value="${package.version}"/>
@@ -81,10 +82,11 @@
 
 	<target name="jar.jdk17" description="create JAR package (JDK 17)" depends="compile.jdk17">
 		<mkdir dir="${out.dir}"/>
-		<jar destfile="${out.file.jdk17}" basedir="${bin.dir.jdk17}" includes="**/*.class" excludes="**/Main.class">
+		<jar destfile="${out.file.jdk17}" basedir="${bin.dir.jdk17}" includes="**/*.class">
 			<fileset file="${basedir}/README.md"/>
 			<fileset file="${basedir}/LICENSE.txt"/>
 			<manifest>
+				<attribute name="Main-Class" value="io.github.deajl3ka.fast_key_erasure.Main"/>
 				<section name="io/github/deajl3ka/fast_key_erasure/">
 					<attribute name="Implementation-Title" value="Fast-key-erasure Random-number Generator"/>
 					<attribute name="Implementation-Version" value="${package.version}"/>
@@ -97,11 +99,18 @@
 
 	<target name="jar.test" description="create JAR package (test)" depends="jar.jdk17,compile.test">
 		<mkdir dir="${out.dir}"/>
-		<jar destfile="${out.file.test}" basedir="${bin.dir.test}" includes="**/*.class" excludes="**/Main.class">
-			<zipfileset includes="**/*.class" excludes="**/module-info.*" src="${out.file.jdk17}"/>
-			<zipfileset includes="**/*.class" excludes="**/module-info.*" src="${lib.dir.test}/ascii85-1.2.jar"/>
+		<jar destfile="${out.file.test}" basedir="${bin.dir.test}" includes="**/*.class">
 			<fileset file="${basedir}/README.md"/>
 			<fileset file="${basedir}/LICENSE.txt"/>
+			<zipfileset includes="**/*.class" excludes="**/Main.class" src="${out.file.jdk17}"/>
+			<zipfileset includes="**/*.class" excludes="**/module-info.*" src="${lib.dir.test}/ascii85-1.2.jar"/>
+			<manifest>
+				<section name="io/github/deajl3ka/fast_key_erasure/">
+					<attribute name="Implementation-Title" value="Fast-key-erasure Random-number Generator"/>
+					<attribute name="Implementation-Version" value="${package.version}"/>
+					<attribute name="Implementation-Build-Date" value="${build.timestamp}"/>
+				</section>
+			</manifest>
 		</jar>
 		<attrib file="${out.file.test}" readonly="true"/>
 	</target>

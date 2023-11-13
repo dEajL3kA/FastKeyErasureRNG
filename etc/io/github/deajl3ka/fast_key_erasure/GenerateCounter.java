@@ -21,18 +21,19 @@ import java.util.Locale;
 import java.util.SplittableRandom;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GenerateCounter {
 
-    private static final int THREAD_COUNT = 8, WORDS = 6, EXPECTED_DISTANCE = 68;
+    private static final int THREAD_COUNT = 8, WORDS = 8, EXPECTED_DISTANCE = 64;
 
-    private static final SplittableRandom splittableRandom = new SplittableRandom(0x93C467E37DB0C7A4L);
-
-    private static int bestDistance = -1;
+    private static int bestDistance = -1, bestThreadId = Integer.MAX_VALUE;
 
     private static final Object mutex = new Object();
 
     private static final CyclicBarrier barrier = new CyclicBarrier(THREAD_COUNT);
+    
+    private static final AtomicBoolean stop = new AtomicBoolean(false);
 
     private static class Int128 {
         final long hi, lo;
@@ -71,10 +72,13 @@ public class GenerateCounter {
     }
 
     public static void main(String[] args) {
+        final SplittableRandom splittableRandom = new SplittableRandom(0x93C467E37DB0C7A4L);
         final Thread[] threads = new Thread[THREAD_COUNT];
-        for (int tid = 0; tid < THREAD_COUNT; ++tid) {
-            threads[tid] = new Thread(GenerateCounter::threadMain);
-            threads[tid].start();
+        for (int i = 0; i < THREAD_COUNT; ++i) {
+            final int threadId = i;
+            final SplittableRandom threadRandom = splittableRandom.split();
+            threads[threadId] = new Thread(() -> threadMain(threadId, threadRandom));
+            threads[threadId].start();
         }
         for (final Thread thread : threads) {
             try {
@@ -85,16 +89,11 @@ public class GenerateCounter {
         }
     }
 
-    private static void threadMain() {
+    private static void threadMain(final int threadId, final SplittableRandom random) {
         final Int128[] values = new Int128[WORDS];
         final char[][] nibble = new char[WORDS][];
 
-        final SplittableRandom random;
-        synchronized (mutex) {
-            random = splittableRandom.split();
-        }
-
-        for (;;) {
+        do {
             for (int i = 0; i < WORDS; ++i) {
                 generatorLoop:
                 for (;;) {
@@ -115,10 +114,18 @@ public class GenerateCounter {
                             continue generatorLoop;
                         }
                     }
-                    for (int j = 0; j < i; ++j) {
-                        final char[] otherNibbles = nibble[j];
+                    if (i > 0) {
+                        final char[] otherNibbles = nibble[i - 1];
                         for (int k = 0; k < 32; ++k) {
                             if (thisNibbles[k] == otherNibbles[k]) {
+                                continue generatorLoop;
+                            }
+                        }
+                    }
+                    for (int j = 0; j < i; ++j) {
+                        final char[] otherNibbles = nibble[j];
+                        for (int k = 0; k < 32; k += 2) {
+                            if ((thisNibbles[k] == otherNibbles[k]) && (thisNibbles[k+1] == otherNibbles[k+1])) {
                                 continue generatorLoop;
                             }
                         }
@@ -138,15 +145,12 @@ public class GenerateCounter {
             }
 
             synchronized (mutex) {
-                if (minDistance >= bestDistance) {
+                if ((minDistance > bestDistance) || ((minDistance == bestDistance) && (threadId < bestThreadId))) {
                     bestDistance = minDistance;
+                    bestThreadId = threadId;
                     System.out.printf("[%d]%n", bestDistance);
                     for (int i = 0; i < WORDS; ++i) {
-                        final String word = new String(nibble[i]).toUpperCase(Locale.ENGLISH);
-                        if (!values[i].toString().equalsIgnoreCase(word)) {
-                            throw new AssertionError("Whoops!");
-                        }
-                        System.out.println(word);
+                        System.out.println(values[i].toString());
                     }
                     System.out.println();
                     if (bestDistance >= EXPECTED_DISTANCE) {
@@ -156,6 +160,9 @@ public class GenerateCounter {
                         System.out.println();
                     }
                 }
+                if (bestDistance >= EXPECTED_DISTANCE) {
+                    stop.set(true);
+                }
             }
 
             try {
@@ -163,13 +170,7 @@ public class GenerateCounter {
             } catch (InterruptedException | BrokenBarrierException e) {
                 return;
             }
-
-            synchronized (mutex) {
-                if (bestDistance >= EXPECTED_DISTANCE) {
-                    return;
-                }
-            }
-        }
+        } while(!stop.get());
     }
 
     private static String longToHexStr(final long value) {
